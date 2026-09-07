@@ -20,3 +20,8 @@ css-old/index.css
 css-old/particle.css
 css-old/playresult.css
 extract_jackets.py
+.gradle/
+build/
+app/build/
+local.properties
+*.apk

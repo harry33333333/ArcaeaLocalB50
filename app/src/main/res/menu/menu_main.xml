@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_update_db"
+        android:title="在线更新定数表"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_clear_cache"
+        android:title="清空成绩缓存"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:title="个性化设置"
+        app:showAsAction="ifRoom" />
+
+</menu>

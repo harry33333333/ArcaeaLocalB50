@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#9C64AC</color>
+    <color name="primary_variant">#70387F</color>
+    <color name="secondary">#00D2D2</color>
+    <color name="accent_orange">#FF8C00</color>
+    
+    <color name="bg_dark">#11101A</color>
+    <color name="surface_dark">#1A1828</color>
+    <color name="surface_card">#221F35</color>
+    <color name="surface_card_stroke">#3A3554</color>
+    
+    <color name="text_primary">#F4F3FB</color>
+    <color name="text_secondary">#9E9BB5</color>
+    <color name="text_hint">#6B6882</color>
+    
+    <!-- Arcaea Difficulty Colors -->
+    <color name="diff_past">#0085C8</color>
+    <color name="diff_past_dark">#0042C8</color>
+    <color name="diff_present">#008200</color>
+    <color name="diff_present_dark">#005A00</color>
+    <color name="diff_future">#8A4875</color>
+    <color name="diff_future_dark">#6E3A60</color>
+    <color name="diff_beyond">#BF2941</color>
+    <color name="diff_beyond_dark">#962336</color>
+    <color name="diff_eternal">#D08BD0</color>
+    <color name="diff_eternal_dark">#A269A2</color>
+    <color name="diff_inscribed">#6D28D9</color>
+    <color name="diff_inscribed_dark">#4C1D95</color>
+    
+    <color name="gold_rank_1">#FFD700</color>
+    <color name="silver_rank_2">#C0C0C0</color>
+    <color name="bronze_rank_3">#CD7F32</color>
+    <color name="normal_rank">#5C5A70</color>
+</resources>

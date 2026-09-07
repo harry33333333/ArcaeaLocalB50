@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Arcaea B50</string>
+    <string name="btn_root_load">⚡ Root 提取并读取</string>
+    <string name="btn_manual_load">📁 手动选择文件</string>
+    <string name="btn_generate_image">🖼️ 生成长图</string>
+    <string name="btn_save_image">💾 保存到相册</string>
+    <string name="btn_update_db">🔄 更新定数表</string>
+    <string name="title_player_info">玩家概览</string>
+    <string name="label_max_ptt">MAX PTT</string>
+    <string name="label_b50_ptt">B50 PTT</string>
+    <string name="label_b10_ptt">B10 PTT</string>
+    <string name="settings">设置</string>
+</resources>

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="4dp"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="#211E33"
+    app:strokeColor="#3A3654"
+    app:strokeWidth="1dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp">
+
+        <!-- 曲绘 -->
+        <ImageView
+            android:id="@+id/iv_jacket"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:scaleType="centerCrop"
+            android:background="#151322"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- 排名角标 -->
+        <TextView
+            android:id="@+id/tv_rank_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="#1"
+            android:textColor="#202020"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
+            android:paddingTop="1dp"
+            android:paddingBottom="1dp"
+            android:background="#FFD700"
+            android:layout_marginStart="8dp"
+            app:layout_constraintStart_toEndOf="@id/iv_jacket"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- 单曲 PTT 胶囊 -->
+        <TextView
+            android:id="@+id/tv_play_rating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="11.8000"
+            android:textColor="#FFFFFF"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
+            android:paddingTop="1dp"
+            android:paddingBottom="1dp"
+            android:background="#8A4875"
+            android:layout_marginStart="4dp"
+            app:layout_constraintStart_toEndOf="@id/tv_rank_num"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- 难度与定数 -->
+        <TextView
+            android:id="@+id/tv_difficulty_constant"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FTR [9.8]"
+            android:textColor="#DCDAE8"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
+            android:paddingTop="1dp"
+            android:paddingBottom="1dp"
+            android:background="#6E3A60"
+            android:layout_marginStart="4dp"
+            app:layout_constraintStart_toEndOf="@id/tv_play_rating"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- 评级勋章 -->
+        <ImageView
+            android:id="@+id/iv_rank_badge"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:scaleType="fitCenter"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- 歌曲名称 -->
+        <TextView
+            android:id="@+id/tv_song_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Song Title"
+            android:textColor="#F4F3FB"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="6dp"
+            android:layout_marginTop="2dp"
+            app:layout_constraintStart_toEndOf="@id/iv_jacket"
+            app:layout_constraintEnd_toStartOf="@id/iv_rank_badge"
+            app:layout_constraintTop_toBottomOf="@id/tv_rank_num" />
+
+        <!-- 成绩分数 -->
+        <TextView
+            android:id="@+id/tv_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10'001'102"
+            android:textColor="#FFFFFF"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:layout_marginStart="8dp"
+            app:layout_constraintStart_toEndOf="@id/iv_jacket"
+            app:layout_constraintTop_toBottomOf="@id/tv_song_name" />
+
+        <!-- Pure / Far / Lost 物量 -->
+        <TextView
+            android:id="@+id/tv_items"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="P/1102(-0)  F/0  L/0"
+            android:textColor="#A8A5BF"
+            android:textSize="11sp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="6dp"
+            app:layout_constraintStart_toEndOf="@id/iv_jacket"
+            app:layout_constraintEnd_toStartOf="@id/iv_rank_badge"
+            app:layout_constraintTop_toBottomOf="@id/tv_score" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>
