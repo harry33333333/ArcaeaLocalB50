@@ -5,16 +5,18 @@
     <item
         android:id="@+id/action_update_db"
         android:title="在线更新定数表"
+        android:icon="@drawable/ic_sync"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:title="个性化设置"
+        android:icon="@drawable/ic_settings"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_clear_cache"
         android:title="清空成绩缓存"
         app:showAsAction="never" />
-
-    <item
-        android:id="@+id/action_settings"
-        android:title="个性化设置"
-        app:showAsAction="ifRoom" />
 
 </menu>

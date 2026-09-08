@@ -24,4 +24,5 @@ extract_jackets.py
 build/
 app/build/
 local.properties
-*.apk
+*.apk
+.idea/

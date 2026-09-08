@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -57,6 +58,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -81,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
     private MaterialToolbar toolbar;
     private ImageView ivAvatarPreview;
     private ImageView ivRatingPreview;
+    private TextView tvAvatarPtt;
     private TextView tvUserNameDisplay;
     private TextView tvUserIdDisplay;
     private TextView tvDbVersionInfo;
@@ -125,6 +128,12 @@ public class MainActivity extends AppCompatActivity {
 
         ivAvatarPreview = findViewById(R.id.iv_avatar_preview);
         ivRatingPreview = findViewById(R.id.iv_rating_preview);
+        tvAvatarPtt = findViewById(R.id.tv_avatar_ptt);
+        try {
+            Typeface fontExo = Typeface.createFromAsset(getAssets(), "Fonts/Exo-SemiBold.ttf");
+            tvAvatarPtt.setTypeface(fontExo);
+        } catch (Exception ignored) {}
+
         tvUserNameDisplay = findViewById(R.id.tv_user_name_display);
         tvUserIdDisplay = findViewById(R.id.tv_user_id_display);
         tvDbVersionInfo = findViewById(R.id.tv_db_version_info);
@@ -246,12 +255,23 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception ignored) {}
         }
 
-        // 刷新段位框预览
-        String ratingImg = RatingCalculator.getPotentialFrameImage(currentSummary.getMaxPtt());
+        // 刷新段位框预览及框内 PTT 潜力值数值
+        double maxPtt = currentSummary.getMaxPtt();
+        String ratingImg = RatingCalculator.getPotentialFrameImage(maxPtt);
         try (InputStream is = getAssets().open("img/rating/" + ratingImg)) {
             Bitmap bmp = BitmapFactory.decodeStream(is);
             if (bmp != null) ivRatingPreview.setImageBitmap(bmp);
         } catch (Exception ignored) {}
+
+        if (tvAvatarPtt != null) {
+            if (maxPtt <= 0) {
+                tvAvatarPtt.setText("--");
+            } else {
+                // 原版 Arcaea 游戏内头像段位框：截断保留两位小数显示 (例如 12.85)
+                double floored = Math.floor(maxPtt * 100.0) / 100.0;
+                tvAvatarPtt.setText(String.format(Locale.US, "%.2f", floored));
+            }
+        }
     }
 
     private void applySummary(B50Summary summary, boolean saveToCache) {
