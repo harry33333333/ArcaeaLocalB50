@@ -42,11 +42,14 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 
 import org.json.JSONObject;
 
@@ -96,6 +99,21 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout layoutLoading;
     private TextView tvLoadingText;
 
+    private NestedScrollView nestedScrollView;
+    private TextView tvListTitle;
+    private MaterialCardView layoutPaginationTop;
+    private MaterialButton btnPrevPage;
+    private TextView tvPageIndicator;
+    private MaterialButton btnNextPage;
+    private MaterialCardView layoutPaginationBottom;
+    private MaterialButton btnPrevPageBottom;
+    private TextView tvPageIndicatorBottom;
+    private MaterialButton btnNextPageBottom;
+
+    private final List<PlayResult> allSongResults = new ArrayList<>();
+    private int currentPage = 0;
+    private static final int PAGE_SIZE = 50;
+
     private MaterialButton btnRootLoad;
     private MaterialButton btnManualLoad;
     private MaterialButton btnGenerateImage;
@@ -114,6 +132,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        userSettings = UserSettings.load(this);
+        applyThemeMode(userSettings.getAppTheme());
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -149,6 +170,19 @@ public class MainActivity extends AppCompatActivity {
         btnManualLoad = findViewById(R.id.btn_manual_load);
         btnGenerateImage = findViewById(R.id.btn_generate_image);
         btnSaveImage = findViewById(R.id.btn_save_image);
+
+        nestedScrollView = findViewById(R.id.nested_scroll_view);
+        tvListTitle = findViewById(R.id.tv_list_title);
+
+        layoutPaginationTop = findViewById(R.id.layout_pagination_top);
+        btnPrevPage = findViewById(R.id.btn_prev_page);
+        tvPageIndicator = findViewById(R.id.tv_page_indicator);
+        btnNextPage = findViewById(R.id.btn_next_page);
+
+        layoutPaginationBottom = findViewById(R.id.layout_pagination_bottom);
+        btnPrevPageBottom = findViewById(R.id.btn_prev_page_bottom);
+        tvPageIndicatorBottom = findViewById(R.id.tv_page_indicator_bottom);
+        btnNextPageBottom = findViewById(R.id.btn_next_page_bottom);
 
         rvSongs.setLayoutManager(new LinearLayoutManager(this));
         songAdapter = new SongListAdapter(this);
@@ -234,6 +268,14 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        btnPrevPage.setOnClickListener(v -> goToPage(currentPage - 1));
+        btnPrevPageBottom.setOnClickListener(v -> goToPage(currentPage - 1));
+        btnNextPage.setOnClickListener(v -> goToPage(currentPage + 1));
+        btnNextPageBottom.setOnClickListener(v -> goToPage(currentPage + 1));
+
+        tvPageIndicator.setOnClickListener(v -> showPageJumpDialog());
+        tvPageIndicatorBottom.setOnClickListener(v -> showPageJumpDialog());
     }
 
     private void updateUserDisplay() {
@@ -282,17 +324,114 @@ public class MainActivity extends AppCompatActivity {
         tvStatB50Ptt.setText(summary.getFormattedB50Ptt());
         tvStatB10Ptt.setText(summary.getFormattedB10Ptt());
 
-        List<PlayResult> displayList = new ArrayList<>();
-        if (summary.getB50List() != null) displayList.addAll(summary.getB50List());
-        if (summary.getOverflowList() != null) displayList.addAll(summary.getOverflowList());
+        allSongResults.clear();
+        if (summary.getB50List() != null) allSongResults.addAll(summary.getB50List());
+        if (summary.getOverflowList() != null) allSongResults.addAll(summary.getOverflowList());
 
-        tvSongCountBadge.setText("共 " + displayList.size() + " 首成绩");
-        songAdapter.setData(displayList);
+        currentPage = 0;
+        updatePageDisplay();
         updateUserDisplay();
 
         if (saveToCache && summary.getB50List() != null && !summary.getB50List().isEmpty()) {
             saveSummaryToCache(summary);
         }
+    }
+
+    private void updatePageDisplay() {
+        int totalSongs = allSongResults.size();
+        tvSongCountBadge.setText("共 " + totalSongs + " 首成绩");
+
+        if (totalSongs == 0) {
+            if (layoutPaginationTop != null) layoutPaginationTop.setVisibility(View.GONE);
+            if (layoutPaginationBottom != null) layoutPaginationBottom.setVisibility(View.GONE);
+            tvListTitle.setText("Best 50 成绩列表");
+            songAdapter.setData(Collections.emptyList());
+            return;
+        }
+
+        int totalPages = Math.max(1, (totalSongs + PAGE_SIZE - 1) / PAGE_SIZE);
+        if (currentPage < 0) currentPage = 0;
+        if (currentPage >= totalPages) currentPage = totalPages - 1;
+
+        int startIdx = currentPage * PAGE_SIZE;
+        int endIdx = Math.min(startIdx + PAGE_SIZE, totalSongs);
+
+        List<PlayResult> pageList = allSongResults.subList(startIdx, endIdx);
+        songAdapter.setData(pageList);
+
+        if (totalPages > 1) {
+            if (layoutPaginationTop != null) layoutPaginationTop.setVisibility(View.VISIBLE);
+            if (layoutPaginationBottom != null) layoutPaginationBottom.setVisibility(View.VISIBLE);
+        } else {
+            if (layoutPaginationTop != null) layoutPaginationTop.setVisibility(View.GONE);
+            if (layoutPaginationBottom != null) layoutPaginationBottom.setVisibility(View.GONE);
+        }
+
+        String pageText = "第 " + (currentPage + 1) + " / " + totalPages + " 页 (" + (startIdx + 1) + "-" + endIdx + " 首)";
+        if (tvPageIndicator != null) tvPageIndicator.setText(pageText);
+        if (tvPageIndicatorBottom != null) tvPageIndicatorBottom.setText(pageText);
+
+        boolean hasPrev = currentPage > 0;
+        boolean hasNext = currentPage < totalPages - 1;
+
+        if (btnPrevPage != null) {
+            btnPrevPage.setEnabled(hasPrev);
+            btnPrevPage.setAlpha(hasPrev ? 1.0f : 0.4f);
+        }
+        if (btnPrevPageBottom != null) {
+            btnPrevPageBottom.setEnabled(hasPrev);
+            btnPrevPageBottom.setAlpha(hasPrev ? 1.0f : 0.4f);
+        }
+        if (btnNextPage != null) {
+            btnNextPage.setEnabled(hasNext);
+            btnNextPage.setAlpha(hasNext ? 1.0f : 0.4f);
+        }
+        if (btnNextPageBottom != null) {
+            btnNextPageBottom.setEnabled(hasNext);
+            btnNextPageBottom.setAlpha(hasNext ? 1.0f : 0.4f);
+        }
+
+        if (currentPage == 0) {
+            tvListTitle.setText("Best 50 成绩列表 (Top 1-" + endIdx + ")");
+        } else {
+            tvListTitle.setText("Overflow 成绩列表 (Top " + (startIdx + 1) + "-" + endIdx + ")");
+        }
+    }
+
+    private void goToPage(int targetPage) {
+        int totalSongs = allSongResults.size();
+        int totalPages = Math.max(1, (totalSongs + PAGE_SIZE - 1) / PAGE_SIZE);
+        if (targetPage < 0 || targetPage >= totalPages || targetPage == currentPage) return;
+
+        currentPage = targetPage;
+        updatePageDisplay();
+
+        if (nestedScrollView != null && tvListTitle != null) {
+            nestedScrollView.post(() -> nestedScrollView.smoothScrollTo(0, tvListTitle.getTop()));
+        }
+    }
+
+    private void showPageJumpDialog() {
+        int totalSongs = allSongResults.size();
+        int totalPages = Math.max(1, (totalSongs + PAGE_SIZE - 1) / PAGE_SIZE);
+        if (totalPages <= 1) return;
+
+        final String[] pageItems = new String[totalPages];
+        for (int i = 0; i < totalPages; i++) {
+            int s = i * PAGE_SIZE + 1;
+            int e = Math.min((i + 1) * PAGE_SIZE, totalSongs);
+            String label = (i == 0) ? " (Best 50)" : " (Overflow)";
+            pageItems[i] = "第 " + (i + 1) + " 页: Top " + s + " - " + e + label;
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle("跳转到指定页 (共 " + totalPages + " 页)")
+                .setSingleChoiceItems(pageItems, currentPage, (dialog, which) -> {
+                    goToPage(which);
+                    dialog.dismiss();
+                })
+                .setNegativeButton("取消", null)
+                .show();
     }
 
     private void saveSummaryToCache(final B50Summary summary) {
@@ -711,6 +850,36 @@ public class MainActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
+        // 界面主题模式与出图风格选择
+        final Spinner spAppTheme = dialogView.findViewById(R.id.sp_setting_app_theme);
+        final Spinner spImageTheme = dialogView.findViewById(R.id.sp_setting_image_theme);
+
+        final String[] appThemes = {"跟随系统", "暗黑模式 (Dark)", "浅色模式 (Light)"};
+        final String[] appThemeKeys = {"system", "dark", "light"};
+        ArrayAdapter<String> appThemeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, appThemes);
+        spAppTheme.setAdapter(appThemeAdapter);
+        int currentAppThemeIdx = 0;
+        for (int i = 0; i < appThemeKeys.length; i++) {
+            if (appThemeKeys[i].equalsIgnoreCase(userSettings.getAppTheme())) {
+                currentAppThemeIdx = i;
+                break;
+            }
+        }
+        spAppTheme.setSelection(currentAppThemeIdx);
+
+        final String[] imageThemes = {"跟随应用主题", "暗黑深紫风格 (Dark)", "浅色清爽风格 (Light)"};
+        final String[] imageThemeKeys = {"follow", "dark", "light"};
+        ArrayAdapter<String> imageThemeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, imageThemes);
+        spImageTheme.setAdapter(imageThemeAdapter);
+        int currentImageThemeIdx = 0;
+        for (int i = 0; i < imageThemeKeys.length; i++) {
+            if (imageThemeKeys[i].equalsIgnoreCase(userSettings.getImageTheme())) {
+                currentImageThemeIdx = i;
+                break;
+            }
+        }
+        spImageTheme.setSelection(currentImageThemeIdx);
+
         new AlertDialog.Builder(this)
                 .setTitle("个性化设置")
                 .setView(dialogView)
@@ -739,8 +908,17 @@ public class MainActivity extends AppCompatActivity {
                         userSettings.setUnitQuantity(60);
                     }
 
+                    String selectedAppTheme = appThemeKeys[spAppTheme.getSelectedItemPosition()];
+                    String selectedImageTheme = imageThemeKeys[spImageTheme.getSelectedItemPosition()];
+                    boolean appThemeChanged = !selectedAppTheme.equalsIgnoreCase(userSettings.getAppTheme());
+                    userSettings.setAppTheme(selectedAppTheme);
+                    userSettings.setImageTheme(selectedImageTheme);
+
                     userSettings.save(MainActivity.this);
                     updateUserDisplay();
+                    if (appThemeChanged) {
+                        applyThemeMode(selectedAppTheme);
+                    }
                     Toast.makeText(MainActivity.this, "设置已保存 (好友码: " + userSettings.getUserId() + ")", Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton("取消", null)
@@ -1055,13 +1233,27 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        MenuItem themeItem = menu.findItem(R.id.action_toggle_theme);
+        if (themeItem != null) {
+            boolean isNight = isCurrentNightMode();
+            themeItem.setIcon(isNight ? R.drawable.ic_theme_light : R.drawable.ic_theme_dark);
+            themeItem.setTitle(isNight ? "切换为浅色模式" : "切换为暗黑模式");
+        }
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_update_db) {
+        if (id == R.id.action_toggle_theme) {
+            boolean isNight = isCurrentNightMode();
+            String newTheme = isNight ? "light" : "dark";
+            userSettings.setAppTheme(newTheme);
+            userSettings.save(this);
+            applyThemeMode(newTheme);
+            Toast.makeText(this, isNight ? "已切换为浅色模式" : "已切换为暗黑模式", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (id == R.id.action_update_db) {
             updateConstantsFromGithub();
             return true;
         } else if (id == R.id.action_clear_cache) {
@@ -1072,5 +1264,20 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void applyThemeMode(String themeMode) {
+        if ("light".equalsIgnoreCase(themeMode)) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        } else if ("dark".equalsIgnoreCase(themeMode)) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        }
+    }
+
+    private boolean isCurrentNightMode() {
+        int currentNightMode = getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+        return currentNightMode == android.content.res.Configuration.UI_MODE_NIGHT_YES;
     }
 }

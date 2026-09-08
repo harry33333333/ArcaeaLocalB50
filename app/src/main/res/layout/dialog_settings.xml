@@ -24,8 +24,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="例如: Hikari"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#6B6882"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_hint"
             android:textSize="15sp"
             android:singleLine="true"
             android:layout_marginBottom="12dp" />
@@ -44,8 +44,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="例如: 100 000 001"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#6B6882"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_hint"
             android:textSize="15sp"
             android:singleLine="true"
             android:layout_marginBottom="10dp" />
@@ -55,7 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="在长图中显示好友 ID"
-            android:textColor="#E0E0F0"
+            android:textColor="@color/text_primary"
             android:textSize="14sp"
             android:checked="true"
             android:layout_marginBottom="14dp" />
@@ -219,18 +219,50 @@
             android:layout_height="44dp"
             android:layout_marginTop="4dp" />
 
-        <EditText
-            android:id="@+id/et_setting_quantity"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:text="60"
-            android:textColor="#FFFFFF"
-            android:textSize="15sp"
-            android:hint="数量 (50, 55, 60, 65...)"
-            android:textColorHint="#6B6882"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="12dp" />
+            <EditText
+                android:id="@+id/et_setting_quantity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:text="60"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                android:hint="数量 (50, 55, 60, 65...)"
+                android:textColorHint="@color/text_hint"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="14dp" />
 
-    </LinearLayout>
-</ScrollView>
+            <!-- 界面主题模式 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="界面主题模式"
+                android:textColor="#BB86FC"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/sp_setting_app_theme"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="14dp" />
+
+            <!-- 长图生成卡片风格 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="B50 长图卡片出图风格"
+                android:textColor="#BB86FC"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/sp_setting_image_theme"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="12dp" />
+
+        </LinearLayout>
+    </ScrollView>

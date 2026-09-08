@@ -58,7 +58,8 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.SongVi
     @Override
     public void onBindViewHolder(@NonNull final SongViewHolder holder, int position) {
         PlayResult item = items.get(position);
-        int rankNum = position + 1;
+        Context itemCtx = holder.itemView.getContext();
+        int rankNum = item.getInnerIndex() > 0 ? item.getInnerIndex() : (position + 1);
 
         holder.tvRankNum.setText("#" + rankNum);
         if (rankNum == 1) {
@@ -71,16 +72,16 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.SongVi
             holder.tvRankNum.setBackgroundColor(Color.parseColor("#CD7F32"));
             holder.tvRankNum.setTextColor(Color.parseColor("#FFFFFF"));
         } else {
-            holder.tvRankNum.setBackgroundColor(Color.parseColor("#4A4660"));
-            holder.tvRankNum.setTextColor(Color.parseColor("#E0E0F0"));
+            holder.tvRankNum.setBackgroundColor(androidx.core.content.ContextCompat.getColor(itemCtx, R.color.stat_capsule_bg));
+            holder.tvRankNum.setTextColor(androidx.core.content.ContextCompat.getColor(itemCtx, R.color.text_secondary));
         }
 
         // 前 10 名金色/橙色边框
-        if (position < 10) {
+        if (rankNum <= 10) {
             holder.cardRoot.setStrokeColor(Color.parseColor("#FFF58200"));
             holder.cardRoot.setStrokeWidth(4);
         } else {
-            holder.cardRoot.setStrokeColor(Color.parseColor("#3A3654"));
+            holder.cardRoot.setStrokeColor(androidx.core.content.ContextCompat.getColor(itemCtx, R.color.song_card_stroke));
             holder.cardRoot.setStrokeWidth(2);
         }
 
@@ -94,9 +95,9 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.SongVi
 
         holder.tvScore.setText(item.getFormattedScore());
         if (item.getScore() >= 10000000 && item.getFar() == 0 && item.getLost() == 0) {
-            holder.tvScore.setTextColor(Color.parseColor("#00E5FF"));
+            holder.tvScore.setTextColor(androidx.core.content.ContextCompat.getColor(itemCtx, R.color.secondary));
         } else {
-            holder.tvScore.setTextColor(Color.parseColor("#FFFFFF"));
+            holder.tvScore.setTextColor(androidx.core.content.ContextCompat.getColor(itemCtx, R.color.text_primary));
         }
 
         String notesStr = "P/" + item.getPerfect() + "(-" + item.getNormalPerfect() + ")   F/" + item.getFar() + "   L/" + item.getLost();

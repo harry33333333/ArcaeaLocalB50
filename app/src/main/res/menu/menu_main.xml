@@ -3,6 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_toggle_theme"
+        android:title="切换深浅主题"
+        android:icon="@drawable/ic_theme_dark"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_update_db"
         android:title="在线更新定数表"
         android:icon="@drawable/ic_sync"

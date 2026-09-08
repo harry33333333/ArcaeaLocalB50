@@ -10,8 +10,8 @@
     android:layout_marginBottom="4dp"
     app:cardCornerRadius="10dp"
     app:cardElevation="2dp"
-    app:cardBackgroundColor="#211E33"
-    app:strokeColor="#3A3654"
+    app:cardBackgroundColor="@color/song_card_bg"
+    app:strokeColor="@color/song_card_stroke"
     app:strokeWidth="1dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -100,7 +100,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Song Title"
-            android:textColor="#F4F3FB"
+            android:textColor="@color/text_primary"
             android:textSize="15sp"
             android:textStyle="bold"
             android:singleLine="true"
@@ -118,7 +118,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="10'001'102"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/text_primary"
             android:textSize="17sp"
             android:textStyle="bold"
             android:layout_marginStart="8dp"
@@ -131,7 +131,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="P/1102(-0)  F/0  L/0"
-            android:textColor="#A8A5BF"
+            android:textColor="@color/text_secondary"
             android:textSize="11sp"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="6dp"

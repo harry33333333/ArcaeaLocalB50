@@ -81,6 +81,8 @@ public class B50ImageDrawer {
     public Bitmap drawB50(B50Summary summary, UserSettings settings) {
         long startTime = System.currentTimeMillis();
 
+        boolean isDark = isDarkTheme(settings);
+
         List<PlayResult> allResults = new ArrayList<>();
         if (summary.getB50List() != null) allResults.addAll(summary.getB50List());
         if (summary.getOverflowList() != null) allResults.addAll(summary.getOverflowList());
@@ -104,8 +106,8 @@ public class B50ImageDrawer {
         Bitmap bitmap = Bitmap.createBitmap(CANVAS_WIDTH, totalHeight, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
 
-        // 1. 绘制背景图与半透明暗色保护层
-        drawBackground(canvas, totalHeight, settings);
+        // 1. 绘制背景图与半透明保护层
+        drawBackground(canvas, totalHeight, settings, isDark);
 
         // 2. 绘制顶部玩家信息与统计
         drawHeader(canvas, summary, settings);
@@ -116,24 +118,45 @@ public class B50ImageDrawer {
 
         // 4. 绘制前 50 张卡片 (5 列网格，每张 300px x 96px)
         int startY = b50SpliterY + spliterHeight;
-        drawCards(canvas, allResults.subList(0, b50Count), startY, 0);
+        drawCards(canvas, allResults.subList(0, b50Count), startY, 0, isDark);
 
         // 5. 绘制 Overflow 卡片 (默认 50+10，共 60 首)
         if (overflowCount > 0) {
             int overflowY = startY + (b50Rows * cardRowHeight);
             drawSpliter(canvas, overflowY, "img/overflow.png");
             int overflowCardsY = overflowY + overflowHeaderHeight;
-            drawCards(canvas, allResults.subList(50, totalCount), overflowCardsY, 50);
+            drawCards(canvas, allResults.subList(50, totalCount), overflowCardsY, 50, isDark);
         }
 
         // 6. 绘制底部版权信息与时间戳
         drawFooter(canvas, totalHeight);
 
-        Log.i(TAG, "5-column B50 image drawn in " + (System.currentTimeMillis() - startTime) + " ms, height=" + totalHeight);
+        Log.i(TAG, "5-column B50 image drawn in " + (System.currentTimeMillis() - startTime) + " ms, height=" + totalHeight + ", isDark=" + isDark);
         return bitmap;
     }
 
-    private void drawBackground(Canvas canvas, int height, UserSettings settings) {
+    public boolean isDarkTheme(UserSettings settings) {
+        String it = settings.getImageTheme();
+        if ("dark".equalsIgnoreCase(it)) {
+            return true;
+        }
+        if ("light".equalsIgnoreCase(it)) {
+            return false;
+        }
+        // "follow" -> 跟随应用主题
+        String at = settings.getAppTheme();
+        if ("dark".equalsIgnoreCase(at)) {
+            return true;
+        }
+        if ("light".equalsIgnoreCase(at)) {
+            return false;
+        }
+        // "system" -> 跟随系统
+        int nightModeFlags = context.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+        return nightModeFlags == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+    }
+
+    private void drawBackground(Canvas canvas, int height, UserSettings settings, boolean isDark) {
         Bitmap bgBmp = null;
         if (settings.getCustomBgPath() != null) {
             File f = new File(settings.getCustomBgPath());
@@ -159,12 +182,12 @@ public class B50ImageDrawer {
             Paint p = new Paint(Paint.FILTER_BITMAP_FLAG);
             canvas.drawBitmap(bgBmp, matrix, p);
         } else {
-            canvas.drawColor(Color.parseColor("#151324"));
+            canvas.drawColor(isDark ? Color.parseColor("#151324") : Color.parseColor("#3A374A"));
         }
 
         // 半透明暗色覆盖层，保证前景文字高可读性
         Paint dimPaint = new Paint();
-        dimPaint.setColor(Color.parseColor("#7A0D0C18"));
+        dimPaint.setColor(isDark ? Color.parseColor("#8A0D0C18") : Color.parseColor("#500D0C18"));
         canvas.drawRect(0, 0, CANVAS_WIDTH, height, dimPaint);
     }
 
@@ -342,7 +365,7 @@ public class B50ImageDrawer {
     /**
      * 绘制成绩卡片（5 列网格，每张 300px x 96px，间隙水平 24px，垂直 14px，左右边距 52px）
      */
-    private void drawCards(Canvas canvas, List<PlayResult> results, int startY, int rankOffset) {
+    private void drawCards(Canvas canvas, List<PlayResult> results, int startY, int rankOffset, boolean isDark) {
         int cardWidth = 300;
         int cardHeight = 96;
         int gapX = 24;
@@ -350,10 +373,26 @@ public class B50ImageDrawer {
         int marginX = 52;
 
         Paint bgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        bgPaint.setColor(Color.parseColor("#F4F8FC")); // Arcaea 浅亮底板
+        // SmartRTE 原版: light 为浅亮色 #F4F8FC，dark 为深紫暗黑 rgba(25, 22, 40, 0.92) -> #EA191628
+        bgPaint.setColor(isDark ? Color.parseColor("#EA191628") : Color.parseColor("#F4F8FC"));
 
         Paint borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         borderPaint.setStyle(Paint.Style.STROKE);
+
+        int normalBorderColor = isDark ? Color.parseColor("#507864A0") : Color.parseColor("#B0B4C0");
+        int titleColor = isDark ? Color.parseColor("#F4F0FF") : Color.parseColor("#101018");
+        int titleShadowColor = isDark ? Color.parseColor("#907864A0") : Color.parseColor("#80B0B0C0");
+        int normalScoreColor = isDark ? Color.parseColor("#FFFFFF") : Color.parseColor("#151325");
+        int normalScoreShadowColor = isDark ? Color.parseColor("#607864A0") : Color.parseColor("#9090A0");
+        int pmScoreColor = isDark ? Color.parseColor("#00E5FF") : Color.parseColor("#00B0C8");
+        int pmScoreShadowColor = isDark ? Color.parseColor("#00E5FF") : Color.parseColor("#00D2D2");
+
+        int pureColor = isDark ? Color.rgb(210, 180, 240) : Color.parseColor("#643D64");
+        int farColor = isDark ? Color.rgb(245, 225, 100) : Color.parseColor("#9A7B00");
+        int lostColor = isDark ? Color.rgb(230, 120, 140) : Color.parseColor("#A63349");
+
+        int defaultRankBg = isDark ? Color.parseColor("#342F4C") : Color.parseColor("#D4D8DF");
+        int defaultRankText = isDark ? Color.parseColor("#EAE6F8") : Color.parseColor("#252332");
 
         for (int i = 0; i < results.size(); i++) {
             PlayResult pr = results.get(i);
@@ -378,7 +417,7 @@ public class B50ImageDrawer {
                 borderPaint.setShadowLayer(0, 0, 0, 0); // 清除阴影
             } else {
                 borderPaint.setStrokeWidth(1f);
-                borderPaint.setColor(Color.parseColor("#B0B4C0"));
+                borderPaint.setColor(normalBorderColor);
                 canvas.drawRoundRect(cardRect, 5f, 5f, borderPaint);
             }
 
@@ -453,8 +492,8 @@ public class B50ImageDrawer {
             } else if (rankNum == 3) {
                 rankBgPaint.setColor(Color.parseColor("#8B4513"));
             } else {
-                rankBgPaint.setColor(Color.parseColor("#D4D8DF"));
-                rankTextColor = Color.parseColor("#252332");
+                rankBgPaint.setColor(defaultRankBg);
+                rankTextColor = defaultRankText;
             }
             canvas.drawRoundRect(rankRect, 3f, 3f, rankBgPaint);
 
@@ -469,8 +508,8 @@ public class B50ImageDrawer {
             Paint titlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             titlePaint.setTypeface(fontExo);
             titlePaint.setTextSize(14f);
-            titlePaint.setColor(Color.parseColor("#101018"));
-            titlePaint.setShadowLayer(1.5f, 1, 1, Color.parseColor("#80B0B0C0"));
+            titlePaint.setColor(titleColor);
+            titlePaint.setShadowLayer(isDark ? 2.5f : 1.5f, 1, 1, titleShadowColor);
 
             String title = pr.getSongName();
             float maxTitleW = 138f;
@@ -490,11 +529,11 @@ public class B50ImageDrawer {
 
             boolean isPM = (pr.getScore() >= 10000000 && pr.getFar() == 0 && pr.getLost() == 0);
             if (isPM) {
-                scorePaint.setColor(Color.parseColor("#00B0C8"));
-                scorePaint.setShadowLayer(4f, 0, 0, Color.parseColor("#00D2D2"));
+                scorePaint.setColor(pmScoreColor);
+                scorePaint.setShadowLayer(4f, 0, 0, pmScoreShadowColor);
             } else {
-                scorePaint.setColor(Color.parseColor("#151325"));
-                scorePaint.setShadowLayer(1.5f, 1, 1, Color.parseColor("#9090A0"));
+                scorePaint.setColor(normalScoreColor);
+                scorePaint.setShadowLayer(isDark ? 2f : 1.5f, 1, 1, normalScoreShadowColor);
             }
             canvas.drawText(pr.getFormattedScore(), cardX + 97, cardY + 65, scorePaint);
 
@@ -504,18 +543,18 @@ public class B50ImageDrawer {
             itemPaint.setTextSize(10.5f);
 
             int itemY = cardY + 86;
-            itemPaint.setColor(Color.parseColor("#643D64")); // Pure 紫色
+            itemPaint.setColor(pureColor);
             String pStr = "P/" + pr.getPerfect() + "(-" + Math.abs(pr.getNormalPerfect()) + ")";
             canvas.drawText(pStr, cardX + 98, itemY, itemPaint);
             float pWidth = itemPaint.measureText(pStr);
 
-            itemPaint.setColor(Color.parseColor("#9A7B00")); // Far 金色
+            itemPaint.setColor(farColor);
             String fStr = "F/" + pr.getFar();
             float fX = cardX + 98 + pWidth + 8;
             canvas.drawText(fStr, fX, itemY, itemPaint);
             float fWidth = itemPaint.measureText(fStr);
 
-            itemPaint.setColor(Color.parseColor("#A63349")); // Lost 红色
+            itemPaint.setColor(lostColor);
             String lStr = "L/" + pr.getLost();
             canvas.drawText(lStr, fX + fWidth + 8, itemY, itemPaint);
 

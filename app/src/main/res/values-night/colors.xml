@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Brand / Accent Colors -->
-    <color name="primary">#7B4D93</color>
-    <color name="primary_variant">#5C3372</color>
-    <color name="secondary">#0090A8</color>
-    <color name="accent_orange">#F57C00</color>
+    <color name="primary">#9C64AC</color>
+    <color name="primary_variant">#70387F</color>
+    <color name="secondary">#00D2D2</color>
+    <color name="accent_orange">#FF8C00</color>
 
-    <!-- App Surface / Background Colors (Light Mode Default) -->
-    <color name="app_bg">#F4F2F9</color>
-    <color name="app_bar_bg">#FFFFFF</color>
-    <color name="surface_header">#FFFFFF</color>
-    <color name="surface_card">#FFFFFF</color>
-    <color name="surface_card_stroke">#DDD9E8</color>
-    <color name="stat_capsule_bg">#F0ECF8</color>
+    <!-- App Surface / Background Colors (Dark Mode) -->
+    <color name="app_bg">#11101A</color>
+    <color name="app_bar_bg">#181625</color>
+    <color name="surface_header">#181625</color>
+    <color name="surface_card">#1D1A2E</color>
+    <color name="surface_card_stroke">#3A3455</color>
+    <color name="stat_capsule_bg">#27233D</color>
 
-    <color name="song_card_bg">#FFFFFF</color>
-    <color name="song_card_stroke">#DDD9E8</color>
+    <color name="song_card_bg">#211E33</color>
+    <color name="song_card_stroke">#3A3654</color>
 
-    <color name="text_primary">#1C1929</color>
-    <color name="text_secondary">#65617D</color>
-    <color name="text_hint">#8E8AA6</color>
+    <color name="text_primary">#F4F3FB</color>
+    <color name="text_secondary">#9E9BB5</color>
+    <color name="text_hint">#6B6882</color>
     <color name="text_white">#FFFFFF</color>
-    <color name="toolbar_icon_tint">#26223A</color>
+    <color name="toolbar_icon_tint">#F4F3FB</color>
 
     <!-- Settings Dialog Colors -->
-    <color name="dialog_surface">#FFFFFF</color>
-    <color name="dialog_card_bg">#F5F2F9</color>
-    <color name="dialog_card_stroke">#DDD9E8</color>
-    <color name="dialog_input_bg">#ECE8F5</color>
+    <color name="dialog_surface">#1D1A2E</color>
+    <color name="dialog_card_bg">#201E32</color>
+    <color name="dialog_card_stroke">#3A3455</color>
+    <color name="dialog_input_bg">#151322</color>
 
     <!-- Compatibility Aliases -->
     <color name="bg_dark">#11101A</color>
@@ -51,5 +51,5 @@
     <color name="gold_rank_1">#FFD700</color>
     <color name="silver_rank_2">#C0C0C8</color>
     <color name="bronze_rank_3">#CD7F32</color>
-    <color name="normal_rank">#DDD9E8</color>
+    <color name="normal_rank">#4A4660</color>
 </resources>

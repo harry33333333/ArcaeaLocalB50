@@ -3,12 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#11101A">
+    android:background="@color/app_bg">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#181625">
+        android:background="@color/app_bar_bg">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
@@ -16,14 +16,15 @@
             android:layout_height="?attr/actionBarSize"
             app:title="Arcaea B50查分器"
             app:titleTextAppearance="@style/ToolbarTitleTextAppearance"
-            app:titleTextColor="#F4F3FB"
+            app:titleTextColor="@color/text_primary"
             app:subtitle="Offline &amp; High-Performance Engine"
             app:subtitleTextAppearance="@style/ToolbarSubtitleTextAppearance"
-            app:subtitleTextColor="#9E9BB5" />
+            app:subtitleTextColor="@color/text_secondary" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/nested_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -42,8 +43,8 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="14dp"
                 app:cardElevation="3dp"
-                app:cardBackgroundColor="#1D1A2E"
-                app:strokeColor="#3A3455"
+                app:cardBackgroundColor="@color/surface_card"
+                app:strokeColor="@color/surface_card_stroke"
                 app:strokeWidth="1dp"
                 android:layout_marginBottom="12dp">
 
@@ -114,7 +115,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Hikari"
-                                android:textColor="#FFFFFF"
+                                android:textColor="@color/text_primary"
                                 android:textSize="19sp"
                                 android:textStyle="bold" />
 
@@ -123,7 +124,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="ID : 100 000 001"
-                                android:textColor="#A09DC0"
+                                android:textColor="@color/text_secondary"
                                 android:textSize="13sp"
                                 android:layout_marginTop="2dp" />
 
@@ -150,7 +151,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="vertical"
-                            android:background="#27233D"
+                            android:background="@color/stat_capsule_bg"
                             android:padding="8dp"
                             android:gravity="center"
                             android:layout_marginEnd="4dp">
@@ -168,7 +169,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0.0000"
-                                android:textColor="#FFFFFF"
+                                android:textColor="@color/text_primary"
                                 android:textSize="17sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -178,7 +179,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="vertical"
-                            android:background="#27233D"
+                            android:background="@color/stat_capsule_bg"
                             android:padding="8dp"
                             android:gravity="center"
                             android:layout_marginStart="4dp"
@@ -197,7 +198,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0.0000"
-                                android:textColor="#FFFFFF"
+                                android:textColor="@color/text_primary"
                                 android:textSize="17sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -207,7 +208,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="vertical"
-                            android:background="#27233D"
+                            android:background="@color/stat_capsule_bg"
                             android:padding="8dp"
                             android:gravity="center"
                             android:layout_marginStart="4dp">
@@ -225,7 +226,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0.0000"
-                                android:textColor="#FFFFFF"
+                                android:textColor="@color/text_primary"
                                 android:textSize="17sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -311,7 +312,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Best 50 成绩列表"
-                    android:textColor="#F4F3FB"
+                    android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -320,9 +321,66 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="共 0 首"
-                    android:textColor="#9E9BB5"
+                    android:textColor="@color/text_secondary"
                     android:textSize="13sp" />
             </LinearLayout>
+
+            <!-- 顶部翻页控制栏 -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/layout_pagination_top"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="1dp"
+                app:cardBackgroundColor="@color/surface_card"
+                app:strokeColor="@color/surface_card_stroke"
+                app:strokeWidth="1dp"
+                android:layout_marginBottom="10dp"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="6dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_prev_page"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="38dp"
+                        android:text="◀ 上一页"
+                        android:textSize="12sp"
+                        app:cornerRadius="8dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp" />
+
+                    <TextView
+                        android:id="@+id/tv_page_indicator"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="第 1 / 1 页 (1-50 首)"
+                        android:textColor="@color/text_primary"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="6dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_next_page"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="38dp"
+                        android:text="下一页 ▶"
+                        android:textSize="12sp"
+                        app:cornerRadius="8dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- 顺滑原生 RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView
@@ -330,6 +388,64 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false" />
+
+            <!-- 底部翻页控制栏 -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/layout_pagination_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="1dp"
+                app:cardBackgroundColor="@color/surface_card"
+                app:strokeColor="@color/surface_card_stroke"
+                app:strokeWidth="1dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="24dp"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="6dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_prev_page_bottom"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="38dp"
+                        android:text="◀ 上一页"
+                        android:textSize="12sp"
+                        app:cornerRadius="8dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp" />
+
+                    <TextView
+                        android:id="@+id/tv_page_indicator_bottom"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="第 1 / 1 页 (1-50 首)"
+                        android:textColor="@color/text_primary"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="6dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_next_page_bottom"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="38dp"
+                        android:text="下一页 ▶"
+                        android:textSize="12sp"
+                        app:cornerRadius="8dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

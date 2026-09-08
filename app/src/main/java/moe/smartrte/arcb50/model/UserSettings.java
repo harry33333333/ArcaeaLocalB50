@@ -18,6 +18,8 @@ public class UserSettings {
     private boolean showUserId = true;
     private String customAvatarPath = null;
     private String customBgPath = null;
+    private String appTheme = "dark"; // "dark", "light", "system"
+    private String imageTheme = "follow"; // "follow", "dark", "light"
 
     public static UserSettings load(Context context) {
         SharedPreferences sp = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -38,6 +40,8 @@ public class UserSettings {
         s.showUserId = sp.getBoolean("show_user_id", true);
         s.customAvatarPath = sp.getString("custom_avatar_path", null);
         s.customBgPath = sp.getString("custom_bg_path", null);
+        s.appTheme = sp.getString("app_theme", "dark");
+        s.imageTheme = sp.getString("image_theme", "follow");
         return s;
     }
 
@@ -54,6 +58,8 @@ public class UserSettings {
         ed.putBoolean("show_user_id", showUserId);
         ed.putString("custom_avatar_path", customAvatarPath);
         ed.putString("custom_bg_path", customBgPath);
+        ed.putString("app_theme", appTheme);
+        ed.putString("image_theme", imageTheme);
         ed.apply();
     }
 
@@ -99,4 +105,10 @@ public class UserSettings {
 
     public String getCustomBgPath() { return customBgPath; }
     public void setCustomBgPath(String customBgPath) { this.customBgPath = customBgPath; }
+
+    public String getAppTheme() { return (appTheme != null) ? appTheme : "dark"; }
+    public void setAppTheme(String appTheme) { this.appTheme = appTheme; }
+
+    public String getImageTheme() { return (imageTheme != null) ? imageTheme : "follow"; }
+    public void setImageTheme(String imageTheme) { this.imageTheme = imageTheme; }
 }
