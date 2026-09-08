@@ -74,6 +74,25 @@ public class PlayResult implements Serializable {
     }
 
     /**
+     * 当定数表更新时，重新应用最新定数、曲名与曲绘，并重新计算单曲 PTT 与达成率
+     */
+    public void updateConstant(double newConstant, String newSongName, String newIllustration) {
+        if (newConstant > 0) {
+            this.constant = newConstant;
+            this.playRating = moe.smartrte.arcb50.logic.RatingCalculator.calculateSingleRating(this.score, newConstant);
+            if (this.constant > 0) {
+                this.percentage = Math.max(0, (this.constant * 38.0 - this.loseScore) / (this.constant * 38.0) * 100.0);
+            }
+        }
+        if (newSongName != null && !newSongName.isEmpty()) {
+            this.songName = newSongName;
+        }
+        if (newIllustration != null && !newIllustration.isEmpty()) {
+            this.illustration = newIllustration;
+        }
+    }
+
+    /**
      * 规范化 8 位格式化分数（带前导 0，例如 09'995'961 或 10'001'225）
      */
     public String getFormattedScore() {

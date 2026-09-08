@@ -170,7 +170,7 @@ public class St3Parser {
         return RatingCalculator.calculateMax50(list);
     }
 
-    private static int getRatingClassFromDiff(String diff) {
+    public static int getRatingClassFromDiff(String diff) {
         if ("Past".equalsIgnoreCase(diff)) return 0;
         if ("Present".equalsIgnoreCase(diff)) return 1;
         if ("Future".equalsIgnoreCase(diff)) return 2;

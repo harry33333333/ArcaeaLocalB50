@@ -40,10 +40,12 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.widget.NestedScrollView;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -139,8 +141,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initViews();
-        initData();
+        initData(savedInstanceState);
         initListeners();
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable("saved_summary", currentSummary);
+        outState.putInt("saved_current_page", currentPage);
     }
 
     private void initViews() {
@@ -184,35 +193,65 @@ public class MainActivity extends AppCompatActivity {
         tvPageIndicatorBottom = findViewById(R.id.tv_page_indicator_bottom);
         btnNextPageBottom = findViewById(R.id.btn_next_page_bottom);
 
-        rvSongs.setLayoutManager(new LinearLayoutManager(this));
+        int columns = getResources().getInteger(R.integer.song_grid_columns);
+        if (columns > 1) {
+            rvSongs.setLayoutManager(new GridLayoutManager(this, columns));
+        } else {
+            rvSongs.setLayoutManager(new LinearLayoutManager(this));
+        }
         songAdapter = new SongListAdapter(this);
         rvSongs.setAdapter(songAdapter);
     }
 
-    private void initData() {
+    private void initData(Bundle savedInstanceState) {
         userSettings = UserSettings.load(this);
         updateUserDisplay();
 
-        showLoading("正在初始化离线曲目定数库...");
-        workExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                final DataManager dm = DataManager.getInstance(MainActivity.this);
-                dm.initialize();
-
-                mainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        hideLoading();
-                        String ver = dm.getDataVersion();
-                        tvDbVersionInfo.setText("定数表版本: " + (ver.isEmpty() ? "本地缓存" : ver) + " (" + dm.getLoadedSongCount() + " 首)");
-                    }
-                });
-
-                // 读取上次退出前保存的查分数据
-                loadSummaryFromCache();
+        if (savedInstanceState != null && savedInstanceState.containsKey("saved_summary")) {
+            B50Summary restored = (B50Summary) savedInstanceState.getSerializable("saved_summary");
+            int restoredPage = savedInstanceState.getInt("saved_current_page", 0);
+            if (restored != null && restored.getB50List() != null && !restored.getB50List().isEmpty()) {
+                applySummary(restored, false);
+                currentPage = restoredPage;
+                updatePageDisplay();
             }
-        });
+            // 屏幕旋转时静默后台初始化定数库，不展示全屏阻塞式 loading 弹窗
+            workExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    final DataManager dm = DataManager.getInstance(MainActivity.this);
+                    dm.initialize();
+                    mainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            String ver = dm.getDataVersion();
+                            tvDbVersionInfo.setText("定数表版本: " + (ver.isEmpty() ? "本地缓存" : ver) + " (" + dm.getLoadedSongCount() + " 首)");
+                        }
+                    });
+                }
+            });
+        } else {
+            showLoading("正在初始化离线曲目定数库...");
+            workExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    final DataManager dm = DataManager.getInstance(MainActivity.this);
+                    dm.initialize();
+
+                    mainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            hideLoading();
+                            String ver = dm.getDataVersion();
+                            tvDbVersionInfo.setText("定数表版本: " + (ver.isEmpty() ? "本地缓存" : ver) + " (" + dm.getLoadedSongCount() + " 首)");
+                        }
+                    });
+
+                    // 读取上次退出前保存的查分数据
+                    loadSummaryFromCache();
+                }
+            });
+        }
 
         // 注册文件选择器（全面兼容 SAF、MT 管理器、ZArchiver 等第三方管理器）
         filePickerLauncher = registerForActivityResult(
@@ -666,12 +705,63 @@ public class MainActivity extends AppCompatActivity {
         DataManager.getInstance(this).updateFromGithub(new DataManager.UpdateCallback() {
             @Override
             public void onSuccess(final String version, final int count) {
+                // 1. 获取当前所有打歌成绩进行全量重算
+                List<PlayResult> listToRecalculate = new ArrayList<>();
+                synchronized (allSongResults) {
+                    if (!allSongResults.isEmpty()) {
+                        for (PlayResult pr : allSongResults) {
+                            listToRecalculate.add(pr);
+                        }
+                    }
+                }
+                if (listToRecalculate.isEmpty()) {
+                    // 若内存暂时未载入，尝试从本地缓存读取
+                    try {
+                        File cacheFile = new File(getFilesDir(), CACHE_FILE_NAME);
+                        if (cacheFile.exists() && cacheFile.length() > 0) {
+                            byte[] bytes = new byte[(int) cacheFile.length()];
+                            try (FileInputStream fis = new FileInputStream(cacheFile)) {
+                                fis.read(bytes);
+                            }
+                            String jsonStr = new String(bytes, StandardCharsets.UTF_8);
+                            B50Summary cached = B50Summary.fromJson(new JSONObject(jsonStr));
+                            if (cached != null) {
+                                if (cached.getB50List() != null) listToRecalculate.addAll(cached.getB50List());
+                                if (cached.getOverflowList() != null) listToRecalculate.addAll(cached.getOverflowList());
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error reading cache for recalculation", e);
+                    }
+                }
+
+                final boolean hasScores = !listToRecalculate.isEmpty();
+                final B50Summary newSummary;
+                if (hasScores) {
+                    DataManager dm = DataManager.getInstance(MainActivity.this);
+                    for (PlayResult pr : listToRecalculate) {
+                        int ratingClass = St3Parser.getRatingClassFromDiff(pr.getDifficulty());
+                        DataManager.SongDifficultyInfo info = dm.getSongDifficultyInfo(pr.getSongId(), ratingClass);
+                        if (info != null && info.constant > 0) {
+                            pr.updateConstant(info.constant, info.songName, info.illustration);
+                        }
+                    }
+                    newSummary = RatingCalculator.calculateMax50(listToRecalculate);
+                } else {
+                    newSummary = null;
+                }
+
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         hideLoading();
                         tvDbVersionInfo.setText("定数表版本: " + version + " (" + count + " 首)");
-                        Toast.makeText(MainActivity.this, "定数表已更新至最新版本: " + version, Toast.LENGTH_LONG).show();
+                        if (hasScores && newSummary != null) {
+                            applySummary(newSummary, true); // 自动更新界面展示并覆写持久化缓存
+                            Toast.makeText(MainActivity.this, "定数表已更新至 " + version + "！\n已根据新定数重新计算全部成绩与 B50 PTT！", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(MainActivity.this, "定数表已更新至最新版本: " + version, Toast.LENGTH_LONG).show();
+                        }
                     }
                 });
             }
@@ -1019,10 +1109,12 @@ public class MainActivity extends AppCompatActivity {
      */
     private void showAvatarGalleryDialog(final String[] selectedAvatar, final Runnable onSelectCallback) {
         GridView gridView = new GridView(this);
-        gridView.setNumColumns(4);
-        gridView.setHorizontalSpacing(dp2px(8));
-        gridView.setVerticalSpacing(dp2px(8));
-        gridView.setPadding(dp2px(12), dp2px(12), dp2px(12), dp2px(12));
+        gridView.setNumColumns(GridView.AUTO_FIT);
+        gridView.setColumnWidth(dp2px(68));
+        gridView.setHorizontalSpacing(dp2px(6));
+        gridView.setVerticalSpacing(dp2px(6));
+        gridView.setPadding(dp2px(10), dp2px(10), dp2px(10), dp2px(10));
+        gridView.setStretchMode(GridView.STRETCH_COLUMN_WIDTH);
         gridView.setBackgroundColor(Color.parseColor("#151322"));
 
         final List<String> avatarList = new ArrayList<>();
@@ -1097,10 +1189,12 @@ public class MainActivity extends AppCompatActivity {
      */
     private void showBgGalleryDialog(final String[] selectedBg, final Runnable onSelectCallback) {
         GridView gridView = new GridView(this);
-        gridView.setNumColumns(2);
+        gridView.setNumColumns(GridView.AUTO_FIT);
+        gridView.setColumnWidth(dp2px(180));
         gridView.setHorizontalSpacing(dp2px(8));
         gridView.setVerticalSpacing(dp2px(8));
         gridView.setPadding(dp2px(12), dp2px(12), dp2px(12), dp2px(12));
+        gridView.setStretchMode(GridView.STRETCH_COLUMN_WIDTH);
         gridView.setBackgroundColor(Color.parseColor("#151322"));
 
         final List<String> bgList = new ArrayList<>();
